@@ -1,9 +1,9 @@
 # Job Market Trends Analysis
 An enriched data mart to analyze job market trends from 2021 to 2023 in several countries through conceptual design, physical design and data staging, OLAP queries, BI dashboard creation, and data mining.
 
-# Instructions
+# Setup Instructions
 - Install Python 3.x and Docker Engine (Docker Desktop)
-- In the root of the project...
+    - Open Docker Desktop and leave it open. This keeps Docker Engine running for you to run Docker commands
 - Create virtual environment
     - `python -m venv venv`
 - Activate venv
