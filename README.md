@@ -13,7 +13,7 @@ An enriched data mart to analyze job market trends from 2021 to 2023 in several 
     - `docker compose up -d` to start and run the containers in the background
     - `docker ps` to verify that your containers are started
     - `docker compose down` to stop your running containers
-    - `docker system prune -a` to delete all *running* images and containers
+    - `docker system prune -a` to delete all *stopped* images and containers
 - Create a file to store sensitive values, such as passwords
     - Create a file named `.env` in the root of the directory
     - Open the file `.env.examples`
