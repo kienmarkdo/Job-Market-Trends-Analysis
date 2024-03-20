@@ -21,10 +21,16 @@ An enriched data mart to analyze job market trends from 2021 to 2023 in several 
     - Copy the contents of `.env.examples` and paste it into `.env`
     - Replace the values with your own values
 
+<!-- ## Docker containers
+- Enter `postgres` container
+    - `docker exec -it postgres bash` to enter the postgres container
+    - `psql -U postgres -d postgres -a -f schema.sql` to manually create tables in the postgres container -->
 ## Docker containers
 - Enter `postgres` container
     - `docker exec -it postgres bash` to enter the postgres container
-    - `psql -U postgres -d postgres -a -f schema.sql` to manually create tables in the postgres container
+    - `psql -U postgres -d postgres` to interact with the PostgreSQL database in the container
+        - Note: The database was automatically created in the postgres container when `docker compose up` was executed.
+        - This is because the `./db/init` directory (which contains the `schema.sql` file) is mounted at `/docker-entrypoint-initdb.d` inside the container to indicate that to PostgreSQL that `schema.sql` (and any other `.sql` or `.sh` scripts present) need to be executed when the container is started up for the first time
 
 # Design Process
 1. Obtain and load the dataset
