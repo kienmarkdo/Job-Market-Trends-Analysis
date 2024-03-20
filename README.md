@@ -11,6 +11,7 @@ An enriched data mart to analyze job market trends from 2021 to 2023 in several 
     - `source venv/bin/activate` on UNIX
 - Install Docker images and run the containers
     - `docker compose up -d` to start and run the containers in the background
+        - `docker compose up --build -d` to rebuild the images, then start and run the containers in the background
     - `docker ps` to verify that your containers are started
     - `docker compose down` to stop your running containers
     - `docker system prune -a` to delete all *stopped* images and containers
@@ -19,6 +20,11 @@ An enriched data mart to analyze job market trends from 2021 to 2023 in several 
     - Open the file `.env.examples`
     - Copy the contents of `.env.examples` and paste it into `.env`
     - Replace the values with your own values
+
+## Docker containers
+- Enter `postgres` container
+    - `docker exec -it postgres bash` to enter the postgres container
+    - `psql -U postgres -d postgres -a -f schema.sql` to manually create tables in the postgres container
 
 # Design Process
 1. Obtain and load the dataset

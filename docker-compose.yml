@@ -2,13 +2,14 @@ version: '3.8'
 services:
   db:
     image: postgres:15
+    container_name: postgres
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD} # Password stored in your local .env file: POSTGRES_PASSWORD=yourPassword
-      POSTGRES_DB: postgres # Optional: Specify a database to be created at container startup
+      POSTGRES_DB: postgres # Username... Optional: Specify a database to be created at container startup
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./db/schema.sql:/schema.sql
 
 volumes:
   postgres_data:
