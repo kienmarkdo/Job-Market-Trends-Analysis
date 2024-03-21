@@ -19,7 +19,7 @@ DB_PARAMS = {
     "port": "5432",  # Default PostgreSQL port
 }
 
-csv_path = "./data_staging/Staged_data.csv"
+CSV_PATH = "./data_staging/Staged_data.csv"
 
 def populate_job_posting_dimension():
     """
@@ -42,7 +42,7 @@ def populate_job_posting_dimension():
         # Batch data for insertion
         data_batch = []
 
-        with open(csv_path, newline="") as csvfile:
+        with open(CSV_PATH, newline="") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 data_batch.append(
@@ -111,7 +111,7 @@ def populate_benefits_dimension():
         # Batch data for insertion
         data_batch = []
 
-        with open(csv_path, newline="") as csvfile:
+        with open(CSV_PATH, newline="") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 data_batch.append(
