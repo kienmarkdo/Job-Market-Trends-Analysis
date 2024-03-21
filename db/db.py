@@ -111,6 +111,21 @@ def populate_job_location_dimension():
     """
     pass
 
+def populate_fact_table():
+    """
+    Populate the fact table in the database.
+
+    Match correct dimensions data for each row in the fact table
+    then populate the fact table by defining the foreign keys
+    associated with the data.
+
+    For example, Job 123 is "Musician" and is located in "Canada".
+    Look for primary key of job 123, primary of the job "Musician",
+    and primary key of the country "Canada" and link those primary
+    keys to a record in the fact table.
+    """
+    pass
+
 
 def populate_database():
     """
@@ -121,7 +136,7 @@ def populate_database():
     of each dimensional table in the database.
     """
     stopwatch: float = None  # keep track of start time of each DB operation
-    print(f"[+] Populate dimensional tables (in progress)")
+    print(f"[+] Populate dimensional tables...")
 
     print(f"Populating job posting dimension table")
     stopwatch = time.time()
@@ -153,6 +168,17 @@ def populate_database():
     populate_job_location_dimension()
     print(get_elapsed_time_message(stopwatch))
 
+    # --------------------------------------------------------
+    print(f"[+] Populate fact table...")
+    stopwatch = time.time()
+    populate_fact_table()
+    print(get_elapsed_time_message(stopwatch))
+
+    # --------------------------------------------------------
+    print("[+] Successfully populated all tables in the database")
+
+    return
+
 
 def get_elapsed_time_message(start_time: float) -> str:
     """
@@ -177,7 +203,7 @@ if __name__ == "__main__":
     try:
         populate_database()
     finally:
-        print(f"[+] The database has been populated successfully")
+        print(f"[+] Completed all database operations")
         print(
             get_elapsed_time_message(start_time)
         )  # End of program execution to measure elapsed time
