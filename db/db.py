@@ -366,8 +366,6 @@ def get_elapsed_time_message(start_time: float) -> str:
 
 
 if __name__ == "__main__":
-    # print(os.getenv("POSTGRES_PASSWORD"))
-    # exit()
     start_time = time.time()  # Start of program execution to measure elapsed time
     try:
         populate_database()
