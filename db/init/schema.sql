@@ -18,8 +18,8 @@
 
 -- Job Posting Dimension
 CREATE TABLE job_posting_dim (
-    job_posting_key SERIAL PRIMARY KEY,
-    job_id BIGINT,
+    -- job_posting_key SERIAL PRIMARY KEY,
+    job_id BIGINT PRIMARY KEY,
     job_title TEXT,
     specialization TEXT,
     job_portal TEXT,
@@ -73,7 +73,6 @@ CREATE TABLE company_hq_location_dim (
     company_hq_location_key SERIAL PRIMARY KEY,
     country TEXT,
     city TEXT
-    -- job_city_population NULL ?
 );
 
 -- Job Location Dimension
