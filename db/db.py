@@ -6,6 +6,7 @@ import os
 from dotenv import load_dotenv
 from psycopg2 import extras
 
+CSV_PATH = "./data_staging/Staged_data.csv"
 
 # Load the environment variables from .env file
 load_dotenv()
@@ -24,7 +25,6 @@ def populate_job_posting_dimension():
     """
     Populate the job posting dimensional table in the database.
     """
-    csv_path = "./data_staging/Staged_data.csv"
 
     # Define SQL query
     sql_query = """
@@ -36,6 +36,9 @@ def populate_job_posting_dimension():
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
 
+    conn = None
+    cursor = None
+    
     try:
         conn: psycopg2._T_conn = psycopg2.connect(**DB_PARAMS)
         cursor = conn.cursor()
@@ -43,7 +46,7 @@ def populate_job_posting_dimension():
         # Batch data for insertion
         data_batch = []
 
-        with open(csv_path, newline="") as csvfile:
+        with open(CSV_PATH, newline="") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 data_batch.append(
@@ -81,14 +84,97 @@ def populate_company_profile_dimension():
     """
     Populate the company profile dimensional table in the database.
     """
-    pass
+    
+    # Define SQL query
+    sql_query = """
+    INSERT INTO company_profile_dim (
+        name, sector, industry, size, ticker
+    )
+    VALUES (%s, %s, %s, %s, %s)
+    """
+    
+    conn = None
+    cursor = None
+    
+    try:
+        conn: psycopg2._T_conn = psycopg2.connect(**DB_PARAMS)
+        cursor = conn.cursor()
+        
+        # Batch data for insertion
+        data_batch = []
+        
+        with open(CSV_PATH, newline="") as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                data_batch.append(
+                    (
+                        row["Company"],
+                        row["Company Sector"],
+                        row["Company Industry"],
+                        int(row["Company Size"]),
+                        row["Company Ticker"],
+                    )
+                )
+                
+        # Use execute_batch for more efficient batch inserts
+        extras.execute_batch(
+            cur=cursor, sql=sql_query, argslist=data_batch, page_size=10000
+        )  # modify page_size to get different performance / memory usage
+
+        conn.commit()
+    except psycopg2.Error as err:
+        print(f"Database error: {err}")
+    finally:
+        if conn:
+            cursor.close()
+            conn.close()
 
 
 def populate_job_posting_date_dimension():
     """
     Populate the job posting date dimensional table in the database.
     """
-    pass
+    # Define SQL query
+    sql_query = """
+    INSERT INTO job_posting_date_dim (
+        day, month, year
+    )
+    VALUES (%s, %s, %s)
+    """
+
+    conn = None
+    cursor = None
+    
+    try:
+        conn: psycopg2._T_conn = psycopg2.connect(**DB_PARAMS)
+        cursor = conn.cursor()
+
+        # Batch data for insertion
+        data_batch = []
+
+        with open(CSV_PATH, newline="") as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                data_batch.append(
+                    (
+                        int(row["Day"]),
+                        int(row["Month"]),
+                        int(row["Year"]),
+                    )
+                )
+
+        # Use execute_batch for more efficient batch inserts
+        extras.execute_batch(
+            cur=cursor, sql=sql_query, argslist=data_batch, page_size=10000
+        )  # modify page_size to get different performance / memory usage
+
+        conn.commit()
+    except psycopg2.Error as err:
+        print(f"Database error: {err}")
+    finally:
+        if conn:
+            cursor.close()
+            conn.close()
 
 
 def populate_benefits_dimension():
@@ -102,14 +188,94 @@ def populate_company_hq_location_dimension():
     """
     Populate the company HQ location dimensional table in the database.
     """
-    pass
+    # Define SQL query
+    sql_query = """
+    INSERT INTO company_hq_location_dim (
+        country, city
+    )
+    VALUES (%s, %s)
+    """
+
+    conn = None
+    cursor = None
+    
+    try:
+        conn: psycopg2._T_conn = psycopg2.connect(**DB_PARAMS)
+        cursor = conn.cursor()
+
+        # Batch data for insertion
+        data_batch = []
+
+        with open(CSV_PATH, newline="") as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                data_batch.append(
+                    (
+                        row["Company HQ Country"],
+                        row["Company HQ City"],
+                    )
+                )
+
+        # Use execute_batch for more efficient batch inserts
+        extras.execute_batch(
+            cur=cursor, sql=sql_query, argslist=data_batch, page_size=10000
+        )  # modify page_size to get different performance / memory usage
+
+        conn.commit()
+    except psycopg2.Error as err:
+        print(f"Database error: {err}")
+    finally:
+        if conn:
+            cursor.close()
+            conn.close()
+
 
 
 def populate_job_location_dimension():
     """
     Populate the job location dimensional table in the database.
     """
-    pass
+    # Define SQL query
+    sql_query = """
+    INSERT INTO job_location_dim (
+        country, city, job_city_population
+    )
+    VALUES (%s, %s, %s)
+    """
+
+    conn = None
+    cursor = None
+    
+    try:
+        conn: psycopg2._T_conn = psycopg2.connect(**DB_PARAMS)
+        cursor = conn.cursor()
+
+        # Batch data for insertion
+        data_batch = []
+
+        with open(CSV_PATH, newline="") as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                data_batch.append(
+                    (
+                        row["Country"],
+                        row["City"],
+                        int(row["Job City Population"]),
+                    )
+                )
+
+        # Use execute_batch for more efficient batch inserts
+        extras.execute_batch(
+            cur=cursor, sql=sql_query, argslist=data_batch, page_size=10000
+        )  # modify page_size to get different performance / memory usage
+
+        conn.commit()
+    except psycopg2.Error as err:
+        print(f"Database error: {err}")
+    finally:
+        if conn:
+            cursor.close()
+            conn.close()
 
 def populate_fact_table():
     """
@@ -135,6 +301,7 @@ def populate_database():
     table, then insert data from those columns into the corresponding columns
     of each dimensional table in the database.
     """
+
     stopwatch: float = None  # keep track of start time of each DB operation
     print(f"[+] Populate dimensional tables...")
 
@@ -199,6 +366,8 @@ def get_elapsed_time_message(start_time: float) -> str:
 
 
 if __name__ == "__main__":
+    # print(os.getenv("POSTGRES_PASSWORD"))
+    # exit()
     start_time = time.time()  # Start of program execution to measure elapsed time
     try:
         populate_database()

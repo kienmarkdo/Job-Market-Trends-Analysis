@@ -38,7 +38,7 @@ CREATE TABLE company_profile_dim (
     name TEXT,
     sector TEXT,
     industry TEXT,
-    size TEXT,
+    size INT,
     ticker TEXT
 );
 
