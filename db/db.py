@@ -6,8 +6,6 @@ import os
 from dotenv import load_dotenv
 from psycopg2 import extras
 
-CSV_PATH = "./data_staging/Staged_data.csv"
-
 # Load the environment variables from .env file
 load_dotenv()
 
@@ -36,7 +34,7 @@ def populate_job_posting_dimension():
     )
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
-
+    
     conn = None
     cursor = None
     
