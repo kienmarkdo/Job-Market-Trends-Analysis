@@ -18,7 +18,6 @@
 
 -- Job Posting Dimension
 CREATE TABLE job_posting_dim (
-    -- job_posting_key SERIAL PRIMARY KEY,
     job_id BIGINT PRIMARY KEY,
     job_title TEXT,
     specialization TEXT,
@@ -87,7 +86,7 @@ CREATE TABLE job_location_dim (
 
 -- Job Posting Fact Table
 CREATE TABLE job_posting_fact (
-    job_posting_key INT REFERENCES job_posting_dim(job_posting_key),
+    job_posting_key INT REFERENCES job_posting_dim(job_id),
     company_profile_key INT REFERENCES company_profile_dim(company_profile_key),
     job_posting_date_key INT REFERENCES job_posting_date_dim(job_posting_date_key),
     benefits_key INT REFERENCES benefits_dim(benefits_key),
