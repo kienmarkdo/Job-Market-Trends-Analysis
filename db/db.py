@@ -48,7 +48,6 @@ def populate_job_posting_dimension():
         data_batch = []
 
         with open(CSV_PATH, newline="") as csvfile:
-        with open(CSV_PATH, newline="") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 data_batch.append(
