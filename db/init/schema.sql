@@ -53,18 +53,18 @@ CREATE TABLE job_posting_date_dim (
 -- Benefits Dimension
 CREATE TABLE benefits_dim (
     benefits_key SERIAL PRIMARY KEY,
-    retirement_plans TEXT,
-    stock_options_or_equity_grants TEXT,
-    parental_leave TEXT,
-    paid_time_off TEXT,
-    flexible_work_arrangements TEXT,
-    health_insurance TEXT,
-    life_and_disability_insurance TEXT,
-    employee_assistance_program TEXT,
-    health_and_wellness_facilities TEXT,
-    employee_referral_program TEXT,
-    transportation_benefits TEXT,
-    bonuses_and_incentive_programs TEXT
+    retirement_plans BOOLEAN,
+    stock_options_or_equity_grants BOOLEAN,
+    parental_leave BOOLEAN,
+    paid_time_off BOOLEAN,
+    flexible_work_arrangements BOOLEAN,
+    health_insurance BOOLEAN,
+    life_and_disability_insurance BOOLEAN,
+    employee_assistance_program BOOLEAN,
+    health_and_wellness_facilities BOOLEAN,
+    employee_referral_program BOOLEAN,
+    transportation_benefits BOOLEAN,
+    bonuses_and_incentive_programs BOOLEAN
 );
 
 -- Company HQ Location Dimension
