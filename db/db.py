@@ -19,13 +19,12 @@ DB_PARAMS = {
     "port": "5432",  # Default PostgreSQL port
 }
 
+csv_path = "./data_staging/Staged_data.csv"
 
 def populate_job_posting_dimension():
     """
     Populate the job posting dimensional table in the database.
     """
-    csv_path = "./data_staging/Staged_data.csv"
-
     # Define SQL query
     sql_query = """
     INSERT INTO job_posting_dim (
@@ -95,7 +94,55 @@ def populate_benefits_dimension():
     """
     Populate the benefits dimensional table in the database.
     """
-    pass
+    # Define SQL query
+    sql_query = """
+    INSERT INTO benefits_dim (
+        retirement_plans, stock_options_or_equity_grants, parental_leave, paid_time_off, 
+        flexible_work_arrangements, health_insurance, life_and_disability_insurance, employee_assistance_program, 
+        health_and_wellness_facilities, employee_referral_program, transportation_benefits, bonuses_and_incentive_programs
+    )
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    """
+
+    try:
+        conn: psycopg2._T_conn = psycopg2.connect(**DB_PARAMS)
+        cursor = conn.cursor()
+
+        # Batch data for insertion
+        data_batch = []
+
+        with open(csv_path, newline="") as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                data_batch.append(
+                    (
+                        row["Retirement Plans"],
+                        row["Stock Options or Equity Grants"],
+                        row["Parental Leave"],
+                        row["Paid Time Off (PTO)"],
+                        row["Flexible Work Arrangements"],
+                        row["Health Insurance"],
+                        row["Life and Disability Insurance"],
+                        row["Employee Assistance Program"],
+                        row["Health and Wellness Facilities"],
+                        row["Employee Referral Program"],
+                        row["Transportation Benefits"],
+                        row["Bonuses and Incentive Programs"],
+                    )
+                )
+
+        # Use execute_batch for more efficient batch inserts
+        extras.execute_batch(
+            cur=cursor, sql=sql_query, argslist=data_batch, page_size=10000
+        )
+
+        conn.commit()
+    except psycopg2.Error as err:
+        print(f"Database error: {err}")
+    finally:
+        if conn:
+            cursor.close()
+            conn.close()
 
 
 def populate_company_hq_location_dimension():
