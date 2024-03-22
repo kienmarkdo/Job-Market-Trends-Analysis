@@ -1,17 +1,23 @@
 # Job Market Trends Analysis
 An enriched data mart to analyze job market trends from 2021 to 2023 in several countries through conceptual design, physical design and data staging, OLAP queries, BI dashboard creation, and data mining.
 
-# Setup Instructions
+## Setup Instructions
+### Local System
 - Install Python 3.x and Docker Engine (Docker Desktop)
     - Open Docker Desktop and leave it open. This keeps Docker Engine running for you to run Docker commands
+### Python Environment
 - Create virtual environment
     - `python -m venv venv`
 - Activate venv
     - `source venv/Scripts/activate` on Windows git bash
     - `source venv/bin/activate` on UNIX
-- Install Docker images and run the containers
-    - `docker compose up -d` to start and run the containers in the background
-        - `docker compose up --build -d` to rebuild the images, then start and run the containers in the background
+- Install Python dependencies
+    - `pip install -r requirements.txt`
+### Database Instance
+- Make sure port 5432 is available
+    - Stop the local Postgres service if it is running on your system
+- Pull Docker images and run the containers
+    - `docker compose up --build -d` to build the images and run the containers in the background
     - `docker ps` to verify that your containers are started
     - `docker compose down` to stop your running containers
     - `docker system prune -a` to delete all *stopped* images and containers
@@ -25,14 +31,21 @@ An enriched data mart to analyze job market trends from 2021 to 2023 in several 
 - Enter `postgres` container
     - `docker exec -it postgres bash` to enter the postgres container
     - `psql -U postgres -d postgres -a -f schema.sql` to manually create tables in the postgres container -->
-## Docker containers
-- Enter `postgres` container
-    - `docker exec -it postgres bash` to enter the postgres container
-    - `psql -U postgres -d postgres` to interact with the PostgreSQL database in the container
-        - Note: The database was automatically created in the postgres container when `docker compose up` was executed.
-        - This is because the `./db/init` directory (which contains the `schema.sql` file) is mounted at `/docker-entrypoint-initdb.d` inside the container to indicate that to PostgreSQL that `schema.sql` (and any other `.sql` or `.sh` scripts present) need to be executed when the container is started up for the first time
+## Access the Database
+Instructions to interact with the Postgres database instance in the Docker container.
+- `docker exec -it postgres bash` to enter the postgres container
+- `psql -U postgres -d postgres` to interact with the PostgreSQL database in the container
+- Refresher on some PSQL commands to get started
+```sql
+\dt                                    # view all tables
+psql -U postgres -d postgres           # open the interactive terminal for the 'postgres' database as the 'postgres' user
+SELECT * FROM job_posting_dim;         # view all records in the job_posting_dim table
+SELECT COUNT(*) FROM job_posting_dim;  # to count the number of rows
+```
+<!-- - Note: The database was automatically created in the postgres container when `docker compose up` was executed.
+- This is because the `./db/init` directory (which contains the `schema.sql` file) is mounted at `/docker-entrypoint-initdb.d` inside the container to indicate that to PostgreSQL that `schema.sql` (and any other `.sql` or `.sh` scripts present) need to be executed when the container is started up for the first time -->
 
-# Design Process
+## Design Process
 1. Obtain and load the dataset
     - The original dataset was obtain from Kaggle https://www.kaggle.com/datasets/ravindrasinghrana/job-description-dataset 
 2. Conceptual Design
