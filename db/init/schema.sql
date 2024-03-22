@@ -38,7 +38,7 @@ CREATE TABLE company_profile_dim (
     name TEXT,
     sector TEXT,
     industry TEXT,
-    size INT,
+    size BIGINT,
     ticker TEXT,
     CONSTRAINT unique_company UNIQUE (name, sector, industry, size, ticker)
 );
@@ -81,7 +81,7 @@ CREATE TABLE job_location_dim (
     job_location_key SERIAL PRIMARY KEY,
     country TEXT,
     city TEXT,
-    job_city_population INT,
+    job_city_population BIGINT,
     CONSTRAINT unique_job_location UNIQUE (country, city)
 );
 
@@ -89,11 +89,11 @@ CREATE TABLE job_location_dim (
 
 -- Job Posting Fact Table
 CREATE TABLE job_posting_fact (
-    job_posting_key INT REFERENCES job_posting_dim(job_id),
-    company_profile_key INT REFERENCES company_profile_dim(company_profile_key),
-    job_posting_date_key INT REFERENCES job_posting_date_dim(job_posting_date_key),
-    benefits_key INT REFERENCES benefits_dim(benefits_key),
-    company_hq_location_key INT REFERENCES company_hq_location_dim(company_hq_location_key),
-    job_location_key INT REFERENCES job_location_dim(job_location_key),
+    job_posting_key BIGINT REFERENCES job_posting_dim(job_id),
+    company_profile_key BIGINT REFERENCES company_profile_dim(company_profile_key),
+    job_posting_date_key BIGINT REFERENCES job_posting_date_dim(job_posting_date_key),
+    benefits_key BIGINT REFERENCES benefits_dim(benefits_key),
+    company_hq_location_key BIGINT REFERENCES company_hq_location_dim(company_hq_location_key),
+    job_location_key BIGINT REFERENCES job_location_dim(job_location_key),
     PRIMARY KEY (job_posting_key, company_profile_key, job_posting_date_key, benefits_key, company_hq_location_key, job_location_key)
 );

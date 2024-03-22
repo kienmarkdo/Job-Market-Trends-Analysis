@@ -20,6 +20,7 @@ DB_PARAMS = {
 
 CSV_PATH = "./data_staging/Staged_data.csv"
 
+
 def populate_job_posting_dimension():
     """
     Populate the job posting dimensional table in the database.
@@ -34,18 +35,18 @@ def populate_job_posting_dimension():
     )
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
-    
+
     conn = None
     cursor = None
-    
+
     try:
-        conn: psycopg2._T_conn = psycopg2.connect(**DB_PARAMS)
+        conn = psycopg2.connect(**DB_PARAMS)
         cursor = conn.cursor()
 
         # Batch data for insertion
         data_batch = []
 
-        with open(CSV_PATH, newline="") as csvfile:
+        with open(CSV_PATH, newline="", encoding="utf-8-sig") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 data_batch.append(
@@ -83,7 +84,7 @@ def populate_company_profile_dimension():
     """
     Populate the company profile dimensional table in the database.
     """
-    
+
     # Define SQL query
     sql_query = """
     INSERT INTO company_profile_dim (
@@ -92,18 +93,18 @@ def populate_company_profile_dimension():
     VALUES (%s, %s, %s, %s, %s)
     ON CONFLICT (name, sector, industry, size, ticker) DO NOTHING;
     """
-    
+
     conn = None
     cursor = None
-    
+
     try:
-        conn: psycopg2._T_conn = psycopg2.connect(**DB_PARAMS)
+        conn = psycopg2.connect(**DB_PARAMS)
         cursor = conn.cursor()
-        
+
         # Batch data for insertion
         data_batch = []
-        
-        with open(CSV_PATH, newline="") as csvfile:
+
+        with open(CSV_PATH, newline="", encoding="utf-8-sig") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 data_batch.append(
@@ -115,7 +116,7 @@ def populate_company_profile_dimension():
                         row["Company Ticker"],
                     )
                 )
-                
+
         # Use execute_batch for more efficient batch inserts
         extras.execute_batch(
             cur=cursor, sql=sql_query, argslist=data_batch, page_size=10000
@@ -144,15 +145,15 @@ def populate_job_posting_date_dimension():
 
     conn = None
     cursor = None
-    
+
     try:
-        conn: psycopg2._T_conn = psycopg2.connect(**DB_PARAMS)
+        conn = psycopg2.connect(**DB_PARAMS)
         cursor = conn.cursor()
 
         # Batch data for insertion
         data_batch = []
 
-        with open(CSV_PATH, newline="") as csvfile:
+        with open(CSV_PATH, newline="", encoding="utf-8-sig") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 data_batch.append(
@@ -192,13 +193,13 @@ def populate_benefits_dimension():
     """
 
     try:
-        conn: psycopg2._T_conn = psycopg2.connect(**DB_PARAMS)
+        conn = psycopg2.connect(**DB_PARAMS)
         cursor = conn.cursor()
 
         # Batch data for insertion
         data_batch = []
 
-        with open(CSV_PATH, newline="") as csvfile:
+        with open(CSV_PATH, newline="", encoding="utf-8-sig") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 data_batch.append(
@@ -247,17 +248,18 @@ def populate_company_hq_location_dimension():
 
     conn = None
     cursor = None
-    
+
     try:
-        conn: psycopg2._T_conn = psycopg2.connect(**DB_PARAMS)
+        conn = psycopg2.connect(**DB_PARAMS)
         cursor = conn.cursor()
 
         # Batch data for insertion
         data_batch = []
 
-        with open(CSV_PATH, newline="") as csvfile:
+        with open(CSV_PATH, newline="", encoding="utf-8-sig") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
+                # print(f"{row['Company HQ City']} ......... {str(row['Company HQ City'])}")
                 data_batch.append(
                     (
                         row["Company HQ Country"],
@@ -279,7 +281,6 @@ def populate_company_hq_location_dimension():
             conn.close()
 
 
-
 def populate_job_location_dimension():
     """
     Populate the job location dimensional table in the database.
@@ -295,15 +296,15 @@ def populate_job_location_dimension():
 
     conn = None
     cursor = None
-    
+
     try:
-        conn: psycopg2._T_conn = psycopg2.connect(**DB_PARAMS)
+        conn = psycopg2.connect(**DB_PARAMS)
         cursor = conn.cursor()
 
         # Batch data for insertion
         data_batch = []
 
-        with open(CSV_PATH, newline="") as csvfile:
+        with open(CSV_PATH, newline="", encoding="utf-8-sig") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 data_batch.append(
@@ -327,9 +328,49 @@ def populate_job_location_dimension():
             cursor.close()
             conn.close()
 
+
+def get_foreign_key(
+    conn,
+    primary_key: str,
+    dimension_table: str,
+    natural_key_columns: list,
+    natural_key_values: list,
+):
+    """
+    Fetches a foreign key from a dimension table based on the natural key(s).
+
+    Example:
+    ```
+    SELECT primary_key FROM dimensional_table WHERE natural_key_columns = natural_key_values;
+    ```
+
+    Args:
+        conn: Database connection object
+        primary_key: Primary key of the table that is being queried
+        dimension_table: Name of the table to query
+        natural_key_columns: Name of columns in the dimension table that form the natural key
+        natural_key_values: Values of the natural key to match
+
+    Returns:
+        The foreign key if a matching row is found, None otherwise
+    """
+    sql_query = f"SELECT {primary_key} FROM {dimension_table} WHERE " + " AND ".join(
+        [f"{col} = %s" for col in natural_key_columns]
+    )
+    cursor = conn.cursor()
+    cursor.execute(sql_query, natural_key_values)
+    result = cursor.fetchone()
+    cursor.close()
+
+    if result:
+        return result[0]
+    else:
+        return None
+
+
 def populate_fact_table():
     """
-    Populate the fact table in the database.
+    Populate the job posting fact table in the database.
 
     Match correct dimensions data for each row in the fact table
     then populate the fact table by defining the foreign keys
@@ -340,7 +381,82 @@ def populate_fact_table():
     and primary key of the country "Canada" and link those primary
     keys to a record in the fact table.
     """
-    pass
+    conn = psycopg2.connect(**DB_PARAMS)
+
+    with open(CSV_PATH, "r", newline="", encoding="utf-8") as csvfile:
+        reader = csv.DictReader(csvfile)
+
+        for row in reader:
+            # Example: SELECT param1 FROM param2 WHERE param3=param4;
+            # where param3 and param3 are looped through automatically
+            job_posting_key = get_foreign_key(
+                conn, "job_id", "job_posting_dim", ["job_id"], [row["Job Id"]]
+            )
+            company_profile_key = get_foreign_key(
+                conn,
+                "company_profile_key",
+                "company_profile_dim",
+                ["name", "sector", "industry", "size", "ticker"],
+                [
+                    row["Company"],
+                    row["Company Sector"],
+                    row["Company Industry"],
+                    row["Company Size"],
+                    row["Company Ticker"],
+                ],
+            )
+            job_posting_date_key = get_foreign_key(
+                conn,
+                "job_posting_date_key",
+                "job_posting_date_dim",
+                ["day", "month", "year"],
+                [row["Day"], row["Month"], row["Year"]],
+            )
+            benefits_key = get_foreign_key(
+                conn,
+                "benefits_key",
+                "benefits_dim",
+                ["benefits_key"],
+                [row["Surrogate Keys"]],
+            )
+            # print(f"asdasdasdasdasdasd {row['Company HQ City']}")
+            # exit()
+            company_hq_location_key = get_foreign_key(
+                conn,
+                "company_hq_location_key",
+                "company_hq_location_dim",
+                ["country", "city"],
+                [row["Company HQ Country"], row["Company HQ City"]],
+            )
+            job_location_key = get_foreign_key(
+                conn,
+                "job_location_key",
+                "job_location_dim",
+                ["country", "city"],
+                [row["Country"], row["City"]],
+            )
+
+            fact_insert_query = """
+            INSERT INTO job_posting_fact (
+                job_posting_key, company_profile_key, job_posting_date_key, benefits_key,
+                company_hq_location_key, job_location_key
+            ) VALUES (%s, %s, %s, %s, %s, %s)
+            ON CONFLICT DO NOTHING;
+            """
+
+            with conn.cursor() as cur:
+                cur.execute(
+                    fact_insert_query,
+                    (
+                        job_posting_key,
+                        company_profile_key,
+                        job_posting_date_key,
+                        benefits_key,
+                        company_hq_location_key,
+                        job_location_key,
+                    ),
+                )
+                conn.commit()
 
 
 def populate_database():
