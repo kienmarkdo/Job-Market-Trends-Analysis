@@ -62,12 +62,23 @@ SELECT COUNT(*) FROM job_posting_dim;  # to count the number of rows
 6. Data Mining
     - Leverage ML techniques to answer relevant questions regarding job market trends
 
-# Data Staging
-Our data staging code is in 'CSI4142_DataStaging_Group9.ipynb' in the data_staging folder.
+## Data Staging
+Our data staging code is in `CSI4142_DataStaging_Group9.ipynb` in the data_staging folder.
 If you want to run and test it:
 - Download the notebook from data_staging folder
 - Download the first dataset from this link: https://www.kaggle.com/datasets/ravindrasinghrana/job-description-dataset?resource=download
-- Download CityPopulation.csv from data_staging folder
-- Download CompanyHQLocation.csv from data_staging folder
+- Download `CityPopulation.csv` from `data_staging` folder
+- Download `CompanyHQLocation.csv` from `data_staging` folder
 
-Please make sure you have python, pandas and jupyter notebook installed on your machine.
+Please make sure you have Python, pandas and jupyter notebook installed.
+
+```console
+# Create a virtual environment if you have not created one already
+python -m venv venv
+source venv/Scripts/activate  # Windows git bash
+source venv/bin/activate      # UNIX
+
+# Install dependencies
+pip install pandas
+pip install notebook
+```
