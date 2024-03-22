@@ -14,8 +14,8 @@ DB_PARAMS = {
     "dbname": "postgres",
     "user": "postgres",
     "password": os.getenv("POSTGRES_PASSWORD"),
-    "host": "localhost",  # Or the appropriate host address
-    "port": "5432",  # Default PostgreSQL port
+    "host": "localhost",
+    "port": "5432",
 }
 
 CSV_PATH = "./data_staging/Staged_data.csv"
@@ -329,48 +329,145 @@ def populate_job_location_dimension():
             conn.close()
 
 
-def get_foreign_key(
-    conn,
-    primary_key: str,
-    dimension_table: str,
-    natural_key_columns: list,
-    natural_key_values: list,
-):
+def create_dimension_caches() -> dict[str, dict]:
     """
-    Fetches a foreign key from a dimension table based on the natural key(s).
+    Create in-memory caches for all dimension tables.
 
-    Example:
-    ```
-    SELECT primary_key FROM dimensional_table WHERE natural_key_columns = natural_key_values;
-    ```
+    Made to optimize the function to populate the fact table.
+
+    Rather than making a query to the database while traversing through
+    each row of the dataset to populate the fact table's foreign keys,
+    this function fetches the primary key of each row in every dimension
+    table and stores them in a dictionary as in-memory caches.
+
+    Return:
+        The caches dictionary storing primary keys of all dimension tables.
+    """
+    conn = psycopg2.connect(**DB_PARAMS)
+    caches = {
+        "job_posting": {},
+        "company_profile": {},
+        "job_posting_date": {},
+        "benefits": {},
+        "company_hq_location": {},
+        "job_location": {},
+    }
+
+    with conn.cursor() as cur:
+        # Cache job_posting_dim keys
+        cur.execute("SELECT job_id FROM job_posting_dim;")
+        for key in cur.fetchall():  # returns a tuplein the format (id,)
+            caches["job_posting"][key[0]] = key[0]
+
+        # Cache company_profile_dim keys
+        cur.execute(
+            "SELECT name, sector, industry, size, ticker, company_profile_key FROM company_profile_dim;"
+        )
+        for name, sector, industry, size, ticker, key in cur.fetchall():
+            caches["company_profile"][(name, sector, industry, size, ticker)] = key
+
+        # Cache job_posting_date_dim keys
+        cur.execute(
+            "SELECT day, month, year, job_posting_date_key FROM job_posting_date_dim;"
+        )
+        for day, month, year, key in cur.fetchall():
+            caches["job_posting_date"][(day, month, year)] = key
+
+        # Cache benefits_dim keys
+        cur.execute("SELECT benefits_key FROM benefits_dim;")
+        for key in cur.fetchall():  # returns a tuplein the format (id,)
+            caches["benefits"][key[0]] = key[0]
+
+        # Cache company_hq_location_dim keys
+        cur.execute(
+            "SELECT country, city, company_hq_location_key FROM company_hq_location_dim;"
+        )
+        for country, city, key in cur.fetchall():
+            caches["company_hq_location"][(country, city)] = key
+
+        # Cache job_location_dim keys
+        cur.execute("SELECT country, city, job_location_key FROM job_location_dim;")
+        for country, city, key in cur.fetchall():
+            caches["job_location"][(country, city)] = key
+
+    return caches
+
+
+def prepare_data_for_fact_table_insertion(caches: dict[str, dict]):
+    """
+    Fetch keys from cache for fact table insertion.
+
+    Made to optimize the function to populate the fact table.
+
+    Iterates through the CSV dataset, finds the primary key of
+    every row in each dimension table, then stores the result
+    in a list of tuples in the exact format that is required to
+    insert the data into the database.
 
     Args:
-        conn: Database connection object
-        primary_key: Primary key of the table that is being queried
-        dimension_table: Name of the table to query
-        natural_key_columns: Name of columns in the dimension table that form the natural key
-        natural_key_values: Values of the natural key to match
+        caches: a dictionary of dimension tables and their primary keys
 
     Returns:
-        The foreign key if a matching row is found, None otherwise
+        All rows to be inserted in the fact table.
     """
-    sql_query = f"SELECT {primary_key} FROM {dimension_table} WHERE " + " AND ".join(
-        [f"{col} = %s" for col in natural_key_columns]
-    )
-    cursor = conn.cursor()
-    cursor.execute(sql_query, natural_key_values)
-    result = cursor.fetchone()
-    cursor.close()
 
-    if result:
-        return result[0]
-    else:
-        return None
+    data_for_insertion: list[tuple] = []
+
+    with open(CSV_PATH, "r", newline="", encoding="utf-8-sig") as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            # Directly use job_id as a foreign key if it's a primary key in job_posting_dim
+            job_posting_key = caches["job_posting"].get((int(row["Job Id"])))
+
+            # Fetch other foreign keys from cache
+            company_profile_key = caches["company_profile"].get(
+                (
+                    row["Company"],
+                    row["Company Sector"],
+                    row["Company Industry"],
+                    int(row["Company Size"]),
+                    row["Company Ticker"],
+                )
+            )
+
+            job_posting_date_key = caches["job_posting_date"].get(
+                (int(row["Day"]), int(row["Month"]), int(row["Year"]))
+            )
+
+            benefits_key = caches["benefits"].get((int(row["Surrogate Keys"])))
+
+            company_hq_location_key = caches["company_hq_location"].get(
+                (row["Company HQ Country"], row["Company HQ City"])
+            )
+
+            job_location_key = caches["job_location"].get((row["Country"], row["City"]))
+
+            if all(
+                [
+                    job_posting_key,
+                    company_profile_key,
+                    job_posting_date_key,
+                    company_hq_location_key,
+                    job_location_key,
+                ]
+            ):
+                data_for_insertion.append(
+                    (
+                        job_posting_key,
+                        company_profile_key,
+                        job_posting_date_key,
+                        benefits_key,
+                        company_hq_location_key,
+                        job_location_key,
+                    )
+                )
+
+    return data_for_insertion
 
 
-def populate_fact_table():
+def populate_fact_table(data_for_insertion: list[tuple]):
     """
-    Populate the job posting fact table in the database.
+    Populate the job posting fact table in the database using bulk insert.
 
     Match correct dimensions data for each row in the fact table
     then populate the fact table by defining the foreign keys
@@ -380,95 +477,36 @@ def populate_fact_table():
     Look for primary key of job 123, primary of the job "Musician",
     and primary key of the country "Canada" and link those primary
     keys to a record in the fact table.
+
+    Args:
+        data_for_insertion: data prepared for insertion into the fact table
     """
     conn = psycopg2.connect(**DB_PARAMS)
 
-    with open(CSV_PATH, "r", newline="", encoding="utf-8-sig") as csvfile:
-        reader = csv.DictReader(csvfile)
+    insert_query = """
+    INSERT INTO job_posting_fact (
+        job_posting_key, company_profile_key, job_posting_date_key, benefits_key, 
+        company_hq_location_key, job_location_key
+    )
+    VALUES (%s, %s, %s, %s, %s, %s)
+    ON CONFLICT (job_posting_key, company_profile_key, job_posting_date_key, benefits_key, company_hq_location_key, job_location_key) DO NOTHING;
+    """
 
-        for row in reader:
-            # Example: SELECT param1 FROM param2 WHERE param3=param4;
-            # where param3 and param3 are looped through automatically
-            job_posting_key = get_foreign_key(
-                conn, "job_id", "job_posting_dim", ["job_id"], [row["Job Id"]]
-            )
-            company_profile_key = get_foreign_key(
-                conn,
-                "company_profile_key",
-                "company_profile_dim",
-                ["name", "sector", "industry", "size", "ticker"],
-                [
-                    row["Company"],
-                    row["Company Sector"],
-                    row["Company Industry"],
-                    row["Company Size"],
-                    row["Company Ticker"],
-                ],
-            )
-            job_posting_date_key = get_foreign_key(
-                conn,
-                "job_posting_date_key",
-                "job_posting_date_dim",
-                ["day", "month", "year"],
-                [row["Day"], row["Month"], row["Year"]],
-            )
-            benefits_key = get_foreign_key(
-                conn,
-                "benefits_key",
-                "benefits_dim",
-                ["benefits_key"],
-                [row["Surrogate Keys"]],
-            )
-            # print(f"asdasdasdasdasdasd {row['Company HQ City']}")
-            # exit()
-            company_hq_location_key = get_foreign_key(
-                conn,
-                "company_hq_location_key",
-                "company_hq_location_dim",
-                ["country", "city"],
-                [row["Company HQ Country"], row["Company HQ City"]],
-            )
-            job_location_key = get_foreign_key(
-                conn,
-                "job_location_key",
-                "job_location_dim",
-                ["country", "city"],
-                [row["Country"], row["City"]],
-            )
-
-            fact_insert_query = """
-            INSERT INTO job_posting_fact (
-                job_posting_key, company_profile_key, job_posting_date_key, benefits_key,
-                company_hq_location_key, job_location_key
-            ) VALUES (%s, %s, %s, %s, %s, %s)
-            ON CONFLICT DO NOTHING;
-            """
-
-            with conn.cursor() as cur:
-                cur.execute(
-                    fact_insert_query,
-                    (
-                        job_posting_key,
-                        company_profile_key,
-                        job_posting_date_key,
-                        benefits_key,
-                        company_hq_location_key,
-                        job_location_key,
-                    ),
-                )
-                conn.commit()
+    with conn.cursor() as cur:
+        extras.execute_batch(cur, insert_query, data_for_insertion, page_size=10000)
+        conn.commit()
 
 
 def populate_database():
     """
-    Populate data from the CSV dataset file into all dimensional tables in the database.
+    Populate data from the CSV dataset file into all dimension tables in the database.
 
     Read the CSV dataset file and select relevant columns for each dimensional
     table, then insert data from those columns into the corresponding columns
     of each dimensional table in the database.
     """
     stopwatch: float = None  # keep track of start time of each DB operation
-    print(f"[+] Populate dimensional tables...")
+    print(f"[+] Populate dimension tables...")
 
     print(f"Populating job posting dimension table")
     stopwatch = time.time()
@@ -503,7 +541,13 @@ def populate_database():
     # --------------------------------------------------------
     print(f"[+] Populate fact table...")
     stopwatch = time.time()
-    populate_fact_table()
+    # populate_fact_table()
+    caches: dict[str, dict] = create_dimension_caches()
+    print(f"Done with caching")
+    data_for_insertion: list[tuple] = prepare_data_for_fact_table_insertion(caches)
+    print(f"Done preparing data for fact table insertion")
+    populate_fact_table(data_for_insertion)
+    print(f"Done populating fact table")
     print(get_elapsed_time_message(stopwatch))
 
     # --------------------------------------------------------
