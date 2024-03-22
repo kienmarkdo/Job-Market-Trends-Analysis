@@ -383,7 +383,7 @@ def populate_fact_table():
     """
     conn = psycopg2.connect(**DB_PARAMS)
 
-    with open(CSV_PATH, "r", newline="", encoding="utf-8") as csvfile:
+    with open(CSV_PATH, "r", newline="", encoding="utf-8-sig") as csvfile:
         reader = csv.DictReader(csvfile)
 
         for row in reader:
