@@ -90,6 +90,7 @@ def populate_company_profile_dimension():
         name, sector, industry, size, ticker
     )
     VALUES (%s, %s, %s, %s, %s)
+    ON CONFLICT (country, city) DO NOTHING;
     """
     
     conn = None
@@ -241,6 +242,7 @@ def populate_company_hq_location_dimension():
         country, city
     )
     VALUES (%s, %s)
+    ON CONFLICT (country, city) DO NOTHING;
     """
 
     conn = None
@@ -288,6 +290,7 @@ def populate_job_location_dimension():
         country, city, job_city_population
     )
     VALUES (%s, %s, %s)
+    ON CONFLICT (country, city) DO NOTHING;
     """
 
     conn = None
@@ -348,7 +351,6 @@ def populate_database():
     table, then insert data from those columns into the corresponding columns
     of each dimensional table in the database.
     """
-
     stopwatch: float = None  # keep track of start time of each DB operation
     print(f"[+] Populate dimensional tables...")
 
