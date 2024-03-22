@@ -38,8 +38,9 @@ CREATE TABLE company_profile_dim (
     name TEXT,
     sector TEXT,
     industry TEXT,
-    size TEXT,
-    ticker TEXT
+    size INT,
+    ticker TEXT,
+    CONSTRAINT unique_company UNIQUE (name, sector, industry, size, ticker)
 );
 
 -- Job Posting Date Dimension
@@ -71,7 +72,8 @@ CREATE TABLE benefits_dim (
 CREATE TABLE company_hq_location_dim (
     company_hq_location_key SERIAL PRIMARY KEY,
     country TEXT,
-    city TEXT
+    city TEXT,
+    CONSTRAINT unique_hq UNIQUE (country, city)
 );
 
 -- Job Location Dimension
@@ -79,7 +81,8 @@ CREATE TABLE job_location_dim (
     job_location_key SERIAL PRIMARY KEY,
     country TEXT,
     city TEXT,
-    job_city_population INT
+    job_city_population INT,
+    CONSTRAINT unique_job_location UNIQUE (country, city)
 );
 
 -- Create Fact Table
