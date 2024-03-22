@@ -90,7 +90,7 @@ def populate_company_profile_dimension():
         name, sector, industry, size, ticker
     )
     VALUES (%s, %s, %s, %s, %s)
-    ON CONFLICT (country, city) DO NOTHING;
+    ON CONFLICT (name, sector, industry, size, ticker) DO NOTHING;
     """
     
     conn = None
