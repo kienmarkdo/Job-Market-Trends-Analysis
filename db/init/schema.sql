@@ -96,6 +96,6 @@ CREATE TABLE job_posting_fact (
     company_hq_location_key BIGINT REFERENCES company_hq_location_dim(company_hq_location_key),
     job_location_key BIGINT REFERENCES job_location_dim(job_location_key),
     jobs_per_industry_and_year BIGINT,
-    jobs_per_company_per_year BIGINT,
+    jobs_per_company_and_year BIGINT,
     PRIMARY KEY (job_posting_key, company_profile_key, job_posting_date_key, benefits_key, company_hq_location_key, job_location_key)
 );
