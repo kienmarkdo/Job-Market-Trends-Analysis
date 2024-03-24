@@ -18,16 +18,16 @@ pip install -r requirements.txt
 ### Database Instance
 - Make sure port 5432 is available
     - Stop the local Postgres service if it is running on your system
-- Pull Docker images and run the containers
-    - `docker compose up --build -d` to build the images and run the containers in the background
-    - `docker ps` to verify that your containers are started
-    - `docker compose down` to stop your running containers
-    - `docker system prune -a` to delete all *stopped* images and containers
 - Create a file to store sensitive values, such as passwords
     - Create a file named `.env` in the root of the directory
     - Open the file `.env.examples`
     - Copy the contents of `.env.examples` and paste it into `.env`
     - Replace the values with your own values
+- Pull Docker images and run the containers
+    - `docker compose up --build -d` to build the images and run the containers in the background
+    - `docker ps` to verify that your containers are started
+    - `docker compose down` to stop your running containers
+    - `docker system prune -a` to delete all *stopped* images and containers
 
 <!-- ## Docker containers
 - Enter `postgres` container
