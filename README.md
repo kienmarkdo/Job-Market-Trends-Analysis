@@ -48,12 +48,12 @@ SELECT COUNT(*) FROM job_posting_dim;  # to count the number of rows
 - This is because the `./db/init` directory (which contains the `schema.sql` file) is mounted at `/docker-entrypoint-initdb.d` inside the container to indicate that to PostgreSQL that `schema.sql` (and any other `.sql` or `.sh` scripts present) need to be executed when the container is started up for the first time -->
 
 ## Data Staging
-Our data staging code is in `CSI4142_DataStaging_Group9.ipynb` in the data_staging folder.
+Our data staging code is in `CSI4142_DataStaging_Group8.ipynb` in the data_staging folder.
 If you want to run and test it:
-- Download the notebook from data_staging folder
+- Download the notebook from `data_staging` folder
 - Download the first dataset from this link: https://www.kaggle.com/datasets/ravindrasinghrana/job-description-dataset?resource=download
 - Download `CityPopulation.csv` from `data_staging` folder
-- Download `CompanyHQLocation.csv` from `data_staging` folder
+- Download `CompanyInformation.csv` from `data_staging` folder
 
 Please make sure you have Python, pandas and jupyter notebook installed.
 
