@@ -1,0 +1,5 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+*.sql linguist-detectable=true
+# Change PLpgSQL to SQL
+*.sql linguist-language=sql
