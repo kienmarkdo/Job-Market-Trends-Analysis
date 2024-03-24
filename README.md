@@ -55,7 +55,7 @@ If you want to run and test it:
 - Download `CityPopulation.csv` from `data_staging` folder
 - Download `CompanyInformation.csv` from `data_staging` folder
 
-Please make sure you have Python, pandas and jupyter notebook installed.
+Please make sure you have Python, pandas and jupyter notebook installed. Alternatively, you can also test using our Google Colab with our code: https://colab.research.google.com/drive/1rAs09BBjjFzvePcJQj585K-PU1yV-4Fb?usp=sharing
 
 ```console
 # Create a virtual environment if you have not created one already
