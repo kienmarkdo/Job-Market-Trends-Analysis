@@ -5,6 +5,7 @@ import os
 
 from dotenv import load_dotenv
 from psycopg2 import extras
+from measurements import populate_measure_industry_year, populate_measure_company_year
 
 # Load the environment variables from .env file
 load_dotenv()
@@ -541,13 +542,24 @@ def populate_database():
     # --------------------------------------------------------
     print(f"[+] Populate fact table...")
     stopwatch = time.time()
-    # populate_fact_table()
     caches: dict[str, dict] = create_dimension_caches()
     print(f"Done with caching")
     data_for_insertion: list[tuple] = prepare_data_for_fact_table_insertion(caches)
     print(f"Done preparing data for fact table insertion")
     populate_fact_table(data_for_insertion)
     print(f"Done populating fact table")
+    print(get_elapsed_time_message(stopwatch))
+
+    # --------------------------------------------------------
+    print(f"Populating jobs per industry and year measure")
+    stopwatch = time.time()
+    populate_measure_industry_year()
+    print(get_elapsed_time_message(stopwatch))
+
+    # --------------------------------------------------------
+    print(f"Populating jobs per company and year measure")
+    stopwatch = time.time()
+    populate_measure_company_year()
     print(get_elapsed_time_message(stopwatch))
 
     # --------------------------------------------------------
