@@ -39,7 +39,7 @@ CREATE TABLE company_profile_dim (
     sector TEXT,
     industry TEXT,
     size BIGINT,
-    ticker TEXT,
+    ticker TEXT, -- company's stock name/symbol, if it exists
     CONSTRAINT unique_company UNIQUE (name, sector, industry, size, ticker)
 );
 
