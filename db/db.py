@@ -30,11 +30,11 @@ def populate_job_posting_dimension():
     # Define SQL query
     sql_query = """
     INSERT INTO job_posting_dim (
-        job_id, job_title, specialization, job_portal, skills, responsibilities, 
+        job_id, job_title, qualifications, specialization, job_portal, skills, responsibilities, 
         minimum_salary, maximum_salary, minimum_experience, maximum_experience, 
         work_type, gender_preference
     )
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     ON CONFLICT (job_id) DO NOTHING;
     """
 
@@ -55,6 +55,7 @@ def populate_job_posting_dimension():
                     (
                         int(row["Job Id"]),
                         row["Job Title"],
+                        row["Qualifications"],
                         row["Specialization"],
                         row["Job Portal"],
                         row["Skills"],

@@ -20,6 +20,7 @@
 CREATE TABLE job_posting_dim (
     job_id BIGINT PRIMARY KEY,
     job_title TEXT,
+    qualifications TEXT,
     specialization TEXT,
     job_portal TEXT,
     skills TEXT,
