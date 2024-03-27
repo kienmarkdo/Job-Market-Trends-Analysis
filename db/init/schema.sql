@@ -29,7 +29,8 @@ CREATE TABLE job_posting_dim (
     minimum_experience INT,
     maximum_experience INT,
     work_type TEXT,
-    gender_preference TEXT
+    gender_preference TEXT,
+    CONSTRAINT unique_job UNIQUE (job_id)
 );
 
 -- Company Profile Dimension
@@ -48,7 +49,8 @@ CREATE TABLE job_posting_date_dim (
     job_posting_date_key SERIAL PRIMARY KEY,
     day INT,
     month INT,
-    year INT
+    year INT,
+    CONSTRAINT unique_date UNIQUE (day, month, year)
 );
 
 -- Benefits Dimension
@@ -65,7 +67,13 @@ CREATE TABLE benefits_dim (
     health_and_wellness_facilities BOOLEAN,
     employee_referral_program BOOLEAN,
     transportation_benefits BOOLEAN,
-    bonuses_and_incentive_programs BOOLEAN
+    bonuses_and_incentive_programs BOOLEAN,
+    CONSTRAINT unique_benefits UNIQUE (
+        retirement_plans, stock_options_or_equity_grants, parental_leave, paid_time_off, 
+        flexible_work_arrangements, health_insurance, life_and_disability_insurance, 
+        employee_assistance_program, health_and_wellness_facilities, employee_referral_program, 
+        transportation_benefits, bonuses_and_incentive_programs
+    )
 );
 
 -- Company HQ Location Dimension

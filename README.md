@@ -29,6 +29,10 @@ pip install -r requirements.txt
     - `docker compose down` to stop your running containers
     - `docker system prune -a` to delete all *stopped* images and containers
 
+### Populate Database
+Now that the database instance and the schema are created, the db needs to be populated
+- `python db/db.py` populates all tables with data, including measurements
+
 <!-- ## Docker containers
 - Enter `postgres` container
     - `docker exec -it postgres bash` to enter the postgres container

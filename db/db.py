@@ -35,6 +35,7 @@ def populate_job_posting_dimension():
         work_type, gender_preference
     )
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    ON CONFLICT (job_id) DO NOTHING;
     """
 
     conn = None
@@ -142,6 +143,7 @@ def populate_job_posting_date_dimension():
         day, month, year
     )
     VALUES (%s, %s, %s)
+    ON CONFLICT (day, month, year) DO NOTHING;
     """
 
     conn = None
@@ -191,6 +193,7 @@ def populate_benefits_dimension():
         health_and_wellness_facilities, employee_referral_program, transportation_benefits, bonuses_and_incentive_programs
     )
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    ON CONFLICT (retirement_plans, stock_options_or_equity_grants, parental_leave, paid_time_off, flexible_work_arrangements, health_insurance, life_and_disability_insurance, employee_assistance_program, health_and_wellness_facilities, employee_referral_program, transportation_benefits, bonuses_and_incentive_programs) DO NOTHING;
     """
 
     try:
@@ -375,9 +378,11 @@ def create_dimension_caches() -> dict[str, dict]:
             caches["job_posting_date"][(day, month, year)] = key
 
         # Cache benefits_dim keys
-        cur.execute("SELECT benefits_key FROM benefits_dim;")
-        for key in cur.fetchall():  # returns a tuplein the format (id,)
-            caches["benefits"][key[0]] = key[0]
+        cur.execute(
+            "SELECT retirement_plans, stock_options_or_equity_grants, parental_leave, paid_time_off, flexible_work_arrangements, health_insurance, life_and_disability_insurance, employee_assistance_program, health_and_wellness_facilities, employee_referral_program, transportation_benefits, bonuses_and_incentive_programs, benefits_key FROM benefits_dim;"
+        )
+        for a, b, c, d, e, f, g, h, i, j, k, l, key in cur.fetchall():
+            caches["benefits"][(a, b, c, d, e, f, g, h, i, j, k, l)] = key
 
         # Cache company_hq_location_dim keys
         cur.execute(
@@ -435,7 +440,23 @@ def prepare_data_for_fact_table_insertion(caches: dict[str, dict]):
                 (int(row["Day"]), int(row["Month"]), int(row["Year"]))
             )
 
-            benefits_key = caches["benefits"].get((int(row["Surrogate Keys"])))
+            # Getting bool values this way for data conversion and matching (Python True is not the same as PostgreSQL True)
+            benefits_key = caches["benefits"].get(
+                (
+                    row["Retirement Plans"].lower() == "true",
+                    row["Stock Options or Equity Grants"].lower() == "true",
+                    row["Parental Leave"].lower() == "true",
+                    row["Paid Time Off (PTO)"].lower() == "true",
+                    row["Flexible Work Arrangements"].lower() == "true",
+                    row["Health Insurance"].lower() == "true",
+                    row["Life and Disability Insurance"].lower() == "true",
+                    row["Employee Assistance Program"].lower() == "true",
+                    row["Health and Wellness Facilities"].lower() == "true",
+                    row["Employee Referral Program"].lower() == "true",
+                    row["Transportation Benefits"].lower() == "true",
+                    row["Bonuses and Incentive Programs"].lower() == "true",
+                )
+            )
 
             company_hq_location_key = caches["company_hq_location"].get(
                 (row["Company HQ Country"], row["Company HQ City"])
@@ -448,6 +469,7 @@ def prepare_data_for_fact_table_insertion(caches: dict[str, dict]):
                     job_posting_key,
                     company_profile_key,
                     job_posting_date_key,
+                    benefits_key,
                     company_hq_location_key,
                     job_location_key,
                 ]
