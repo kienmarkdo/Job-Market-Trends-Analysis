@@ -30,8 +30,7 @@ pip install -r requirements.txt
     - `docker system prune -a` to delete all *stopped* images and containers
 
 ### Populate Database
-Now that the database instance is up and the schema is created, it needs to be populated with data
-as well as measurements.
+Now that the database instance and the schema are created, the db needs to be populated
 - `python db/db.py` populates all tables with data, including measurements
 
 <!-- ## Docker containers
