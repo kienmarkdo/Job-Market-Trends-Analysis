@@ -51,7 +51,8 @@ CREATE TABLE job_posting_date_dim (
     day INT,
     month INT,
     year INT,
-    CONSTRAINT unique_date UNIQUE (day, month, year)
+    quarter TEXT,
+    CONSTRAINT unique_date UNIQUE (day, month, year, quarter)
 );
 
 -- Benefits Dimension

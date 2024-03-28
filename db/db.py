@@ -141,10 +141,10 @@ def populate_job_posting_date_dimension():
     # Define SQL query
     sql_query = """
     INSERT INTO job_posting_date_dim (
-        day, month, year
+        day, month, year, quarter
     )
-    VALUES (%s, %s, %s)
-    ON CONFLICT (day, month, year) DO NOTHING;
+    VALUES (%s, %s, %s, %s)
+    ON CONFLICT (day, month, year, quarter) DO NOTHING;
     """
 
     conn = None
@@ -165,6 +165,7 @@ def populate_job_posting_date_dimension():
                         int(row["Day"]),
                         int(row["Month"]),
                         int(row["Year"]),
+                        row["Quarter"]
                     )
                 )
 
@@ -264,7 +265,6 @@ def populate_company_hq_location_dimension():
         with open(CSV_PATH, newline="", encoding="utf-8-sig") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
-                # print(f"{row['Company HQ City']} ......... {str(row['Company HQ City'])}")
                 data_batch.append(
                     (
                         row["Company HQ Country"],
@@ -373,10 +373,10 @@ def create_dimension_caches() -> dict[str, dict]:
 
         # Cache job_posting_date_dim keys
         cur.execute(
-            "SELECT day, month, year, job_posting_date_key FROM job_posting_date_dim;"
+            "SELECT day, month, year, quarter, job_posting_date_key FROM job_posting_date_dim;"
         )
-        for day, month, year, key in cur.fetchall():
-            caches["job_posting_date"][(day, month, year)] = key
+        for day, month, year, quarter, key in cur.fetchall():
+            caches["job_posting_date"][(day, month, year, quarter)] = key
 
         # Cache benefits_dim keys
         cur.execute(
@@ -438,7 +438,7 @@ def prepare_data_for_fact_table_insertion(caches: dict[str, dict]):
             )
 
             job_posting_date_key = caches["job_posting_date"].get(
-                (int(row["Day"]), int(row["Month"]), int(row["Year"]))
+                (int(row["Day"]), int(row["Month"]), int(row["Year"]), row["Quarter"])
             )
 
             # Getting bool values this way for data conversion and matching (Python True is not the same as PostgreSQL True)
