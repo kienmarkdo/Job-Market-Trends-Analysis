@@ -8,12 +8,20 @@ An enriched data mart to analyze job market trends from 2021 to 2023 in several 
 ### Python Environment
 ```console
 # Create a virtual environment and install Python dependencies
+# A venv is an isolated environment to store yours packages so that you don't have to worry about filling up your computer
 python -m venv venv
 source venv/Scripts/activate  # Windows (git bash)
 source venv/bin/activate      # UNIX
 
 # Install all dependencies
 pip install -r requirements.txt
+
+# (OPTIONAL) Install all dependencies individually
+# Use this if you do not want to run pip install -r requirements.txt
+pip install psycopg2
+pip install python-dotenv
+pip install pandas
+pip install notebook
 ```
 ### Database Instance
 - Make sure port 5432 is available
@@ -59,18 +67,7 @@ If you want to run and test it:
 - Download `CityPopulation.csv` from `data_staging` folder
 - Download `CompanyInformation.csv` from `data_staging` folder
 
-Please make sure you have Python, pandas and jupyter notebook installed. 
-
-```console
-# Create a virtual environment if you have not created one already
-python -m venv venv
-source venv/Scripts/activate  # Windows git bash
-source venv/bin/activate      # UNIX
-
-# Install dependencies
-pip install pandas
-pip install notebook
-```
+Please make sure you have Python, pandas and jupyter notebook installed.
 
 ## Design Process
 1. Obtain and load the dataset
