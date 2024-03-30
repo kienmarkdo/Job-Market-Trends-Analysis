@@ -22,6 +22,9 @@ pip install psycopg2
 pip install python-dotenv
 pip install pandas
 pip install notebook
+pip install scikit-learn
+pip install matplotlib
+pip install numpy
 ```
 ### Database Instance
 - Make sure port 5432 is available
