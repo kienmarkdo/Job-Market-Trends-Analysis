@@ -60,14 +60,19 @@ SELECT COUNT(*) FROM job_posting_dim;  # to count the number of rows
 - This is because the `./db/init` directory (which contains the `schema.sql` file) is mounted at `/docker-entrypoint-initdb.d` inside the container to indicate that to PostgreSQL that `schema.sql` (and any other `.sql` or `.sh` scripts present) need to be executed when the container is started up for the first time -->
 
 ## Data Staging
-Our data staging code is in `CSI4142_DataStaging_Group8.ipynb` in the data_staging folder.
-If you want to run and test it:
-- Download the notebook from `data_staging` folder
-- Download the first dataset from this link: https://www.kaggle.com/datasets/ravindrasinghrana/job-description-dataset?resource=download
-- Download `CityPopulation.csv` from `data_staging` folder
-- Download `CompanyInformation.csv` from `data_staging` folder
+Our data staging code is in `CSI4142_DataStaging_Group8.ipynb` in the `data_staging` folder.
 
-Please make sure you have Python, pandas and jupyter notebook installed.
+To run the notebook:
+- Ensure Python, Pandas, and Jupyter Notebook are installed
+- Download the first dataset `job_descriptions.csv` from this link: https://www.kaggle.com/datasets/ravindrasinghrana/job-description-dataset?resource=download
+- Place the `job_descriptions.csv` into the `data_staging` folder
+- Open the terminal in the root of the project. Run the following command to open the notebook in your browser.
+```console
+jupyter notebook
+```
+- Click on the `data_staging` to navigate to it
+- Click on the `CSI4142_DataStaging_Group8.ipynb` notebook to open it
+- In the `Run` tab, click `Run All Cells` to run all cells
 
 ## Design Process
 1. Obtain and load the dataset
