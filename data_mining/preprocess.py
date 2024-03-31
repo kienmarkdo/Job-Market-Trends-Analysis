@@ -80,26 +80,32 @@ def transform():
     normalize_salary(df)
     normalize_experience(df)
     
-    # print statements
-    print("\n5 rows of the Minimum Salary column:")
-    print(df["Minimum Salary"].head(5))
-    print("\n5 rows of the Normalized Minimum Salary column:")
-    print(df["Normalized Minimum Salary"].head(5))
+    # Display the min and max of the non-normalized column
+    # data = df["Maximum Salary"]
+    # min_value = data.min()
+    # max_value = data.max()
+    # print(f"Min value before normalization: {min_value}")
+    # print(f"Max value before normalization: {max_value}")
     
-    print("\n5 rows of the Maximum Salary column:")
-    print(df["Maximum Salary"].head(5))
-    print("\n5 rows of the Normalized Maximum Salary column:")
-    print(df["Normalized Maximum Salary"].head(5))
+    print("\n10 rows of the Minimum Salary column:")
+    print(df["Minimum Salary"].head(10))
+    print("\n10 rows of the Normalized Minimum Salary column:")
+    print(df["Normalized Minimum Salary"].head(10))
+    
+    print("\n10 rows of the Maximum Salary column:")
+    print(df["Maximum Salary"].head(10))
+    print("\n10 rows of the Normalized Maximum Salary column:")
+    print(df["Normalized Maximum Salary"].head(10))
     
     print("\n5 rows of the Minimum Experience column:")
-    print(df["Minimum Experience (years)"].head(5))
-    print("\n5 rows of the Normalized Minimum Experience column:")
-    print(df["Normalized Minimum Experience"].head(5))
+    print(df["Minimum Experience (years)"].head(10))
+    print("\n10 rows of the Normalized Minimum Experience column:")
+    print(df["Normalized Minimum Experience"].head(10))
     
-    print("\n5 rows of the Maximum Experience column:")
-    print(df["Maximum Experience (years)"].head(5))
-    print("\n5 rows of the Normalized Maximum Experience column:")
-    print(df["Normalized Maximum Experience"].head(5))
+    print("\n10 rows of the Maximum Experience column:")
+    print(df["Maximum Experience (years)"].head(10))
+    print("\n10 rows of the Normalized Maximum Experience column:")
+    print(df["Normalized Maximum Experience"].head(10))
 
     # Save the transformed csv to a new file
     # df.to_csv('transformed_data.csv', index=False)
