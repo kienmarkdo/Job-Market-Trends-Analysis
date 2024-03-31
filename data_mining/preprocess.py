@@ -78,57 +78,56 @@ def transform():
     df = pd.read_csv("data_staging/Staged_data.csv")
     
     normalize_salary(df)
+    normalize_experience(df)
     
-    # remove print statements later
+    # print statements
+    print("\n5 rows of the Minimum Salary column:")
+    print(df["Minimum Salary"].head(5))
+    print("\n5 rows of the Normalized Minimum Salary column:")
+    print(df["Normalized Minimum Salary"].head(5))
     
-    print("\n10 rows of the Minimum Salary column:")
-    print(df["Minimum Salary"].head(10))
+    print("\n5 rows of the Maximum Salary column:")
+    print(df["Maximum Salary"].head(5))
+    print("\n5 rows of the Normalized Maximum Salary column:")
+    print(df["Normalized Maximum Salary"].head(5))
     
-    print("\n10 rows of the Normalized Minimum Salary column:")
-    print(df["Normalized Minimum Salary"].head(10))
+    print("\n5 rows of the Minimum Experience column:")
+    print(df["Minimum Experience (years)"].head(5))
+    print("\n5 rows of the Normalized Minimum Experience column:")
+    print(df["Normalized Minimum Experience"].head(5))
     
-    print("\n10 rows of the Maximum Salary column:")
-    print(df["Maximum Salary"].head(10))
-    
-    print("\n10 rows of the Normalized Maximum Salary column:")
-    print(df["Normalized Maximum Salary"].head(10))
+    print("\n5 rows of the Maximum Experience column:")
+    print(df["Maximum Experience (years)"].head(5))
+    print("\n5 rows of the Normalized Maximum Experience column:")
+    print(df["Normalized Maximum Experience"].head(5))
 
     # Save the transformed csv to a new file
     # df.to_csv('transformed_data.csv', index=False)
+    
+    
 
 def normalize_salary(df):
     """
     Normalizes the Salary and Experience columns
     """
-    # Normalization of minimum salary
+    # ======================  Normalization of minimum salary  ====================== 
     column_min_salary = 'Minimum Salary'  # Replace 'column_name' with the name of your column
     data = df[[column_min_salary]]
     
-    # Display the min and max of the non-normalized column
-    min_value = data.min()
-    max_value = data.max()
-    print(f"Min value before normalization: {min_value}")
-    print(f"Max value before normalization: {max_value}")
-    
-    # Normalize the column
+    # Normalize
     scaler = MinMaxScaler()
     normalized_data = scaler.fit_transform(data)
     
     # Add the normalized column to the df if it doesn't exist yet
     if "Normalized Minimum Salary" not in df:
         df["Normalized Minimum Salary"] = normalized_data
-        
-    # Normalization of maximum salary
-    column_max_salary = 'Maximum Salary'  # Replace 'column_name' with the name of your column
+       
+    # ======================  Normalization of maximum salary  ====================== 
+     
+    column_max_salary = 'Maximum Salary'
     data = df[[column_max_salary]]
     
-    # Display the min and max of the non-normalized column
-    min_value = data.min()
-    max_value = data.max()
-    print(f"Min value before normalization: {min_value}")
-    print(f"Max value before normalization: {max_value}")
-    
-    # Normalize the column
+    # Normalize
     scaler = MinMaxScaler()
     normalized_data = scaler.fit_transform(data)
     
@@ -138,6 +137,39 @@ def normalize_salary(df):
         
     return df
 
+def normalize_experience(df):
+    """
+    Normalizes maximum and minimum years of experience
+    """
+    # ======================  Normalization of minimum experience  ====================== 
+    
+    column_min_exp = 'Minimum Experience (years)'
+    data = df[[column_min_exp]]
+    
+    # Normalize
+    scaler = MinMaxScaler()
+    normalized_data = scaler.fit_transform(data)
+    
+    # Add the normalized column to the df if it doesn't exist yet
+    if "Normalized Minimum Experience" not in df:
+        df["Normalized Minimum Experience"] = normalized_data
+        
+    # ======================  Normalization of maximum experience  ====================== 
+    
+    column_max_exp = 'Maximum Experience (years)'  # Replace 'column_name' with the name of your column
+    data = df[[column_max_exp]]
+    
+    # Normalize
+    scaler = MinMaxScaler()
+    normalized_data = scaler.fit_transform(data)
+    
+    # Add the normalized column to the df if it doesn't exist yet
+    if "Normalized Maximum Experience" not in df:
+        df["Normalized Maximum Experience"] = normalized_data
+        
+    return df
+    
+    
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
