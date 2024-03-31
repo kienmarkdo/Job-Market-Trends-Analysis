@@ -72,6 +72,16 @@ If you want to run and test it:
 
 Please make sure you have Python, pandas and jupyter notebook installed.
 
+## Data Mining
+- Data Summarization and Transformation
+```console
+python data_mining/preprocess.py              # Runs both data summarization and data transformation
+python data_mining/preprocess.py --summarize  # Runs data summarization, displaying boxplots, histograms, scatter plots
+python data_mining/preprocess.py --transform  # Runs data preprocessing, including data transformation and feature selection
+
+python data_mining/preprocess.py -h           # View help menu
+```
+
 ## Design Process
 1. Obtain and load the dataset
     - The original dataset was obtain from Kaggle https://www.kaggle.com/datasets/ravindrasinghrana/job-description-dataset 
