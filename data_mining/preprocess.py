@@ -6,6 +6,7 @@ selection to only include relevant attributes in our learning model.
 import pandas as pd
 import matplotlib.pyplot as plt
 import argparse
+from sklearn.preprocessing import MinMaxScaler
 
 
 def summarize():
@@ -73,7 +74,69 @@ def transform():
     importance during learning, and feature selection to remove potentially
     redundant attributes.
     """
-    pass
+    # Load the dataset
+    df = pd.read_csv("data_staging/Staged_data.csv")
+    
+    normalize_salary(df)
+    
+    # remove print statements later
+    
+    print("\n10 rows of the Minimum Salary column:")
+    print(df["Minimum Salary"].head(10))
+    
+    print("\n10 rows of the Normalized Minimum Salary column:")
+    print(df["Normalized Minimum Salary"].head(10))
+    
+    print("\n10 rows of the Maximum Salary column:")
+    print(df["Maximum Salary"].head(10))
+    
+    print("\n10 rows of the Normalized Maximum Salary column:")
+    print(df["Normalized Maximum Salary"].head(10))
+
+    # Save the transformed csv to a new file
+    # df.to_csv('transformed_data.csv', index=False)
+
+def normalize_salary(df):
+    """
+    Normalizes the Salary and Experience columns
+    """
+    # Normalization of minimum salary
+    column_min_salary = 'Minimum Salary'  # Replace 'column_name' with the name of your column
+    data = df[[column_min_salary]]
+    
+    # Display the min and max of the non-normalized column
+    min_value = data.min()
+    max_value = data.max()
+    print(f"Min value before normalization: {min_value}")
+    print(f"Max value before normalization: {max_value}")
+    
+    # Normalize the column
+    scaler = MinMaxScaler()
+    normalized_data = scaler.fit_transform(data)
+    
+    # Add the normalized column to the df if it doesn't exist yet
+    if "Normalized Minimum Salary" not in df:
+        df["Normalized Minimum Salary"] = normalized_data
+        
+    # Normalization of maximum salary
+    column_max_salary = 'Maximum Salary'  # Replace 'column_name' with the name of your column
+    data = df[[column_max_salary]]
+    
+    # Display the min and max of the non-normalized column
+    min_value = data.min()
+    max_value = data.max()
+    print(f"Min value before normalization: {min_value}")
+    print(f"Max value before normalization: {max_value}")
+    
+    # Normalize the column
+    scaler = MinMaxScaler()
+    normalized_data = scaler.fit_transform(data)
+    
+    # Add the normalized column to the df if it doesn't exist yet
+    if "Normalized Maximum Salary" not in df:
+        df["Normalized Maximum Salary"] = normalized_data
+        
+    return df
 
 
 if __name__ == "__main__":
