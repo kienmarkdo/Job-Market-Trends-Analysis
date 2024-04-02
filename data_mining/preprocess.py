@@ -4,6 +4,7 @@ selection to only include relevant attributes in our learning model.
 """
 
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import argparse
 from sklearn.preprocessing import MinMaxScaler
@@ -76,6 +77,8 @@ def transform():
     """
     # Load the dataset
     df = pd.read_csv("data_staging/Staged_data.csv")
+
+    # ======================  Normalization  ====================== 
     
     normalize_salary(df)
     normalize_experience(df)
@@ -106,18 +109,22 @@ def transform():
     print(df["Maximum Experience (years)"].head(10))
     print("\n10 rows of the Normalized Maximum Experience column:")
     print(df["Normalized Maximum Experience"].head(10))
+    print()
+
+    # ======================  One Hot Encoding  ======================
+
+    gender_one_hot_encoding(df)
+    work_type_one_hot_encoding(df)
 
     # Save the transformed csv to a new file
     # df.to_csv('transformed_data.csv', index=False)
     
-    
-
 def normalize_salary(df):
     """
     Normalizes the Salary and Experience columns
     """
     # ======================  Normalization of minimum salary  ====================== 
-    column_min_salary = 'Minimum Salary'  # Replace 'column_name' with the name of your column
+    column_min_salary = 'Minimum Salary'
     data = df[[column_min_salary]]
     
     # Normalize
@@ -162,7 +169,7 @@ def normalize_experience(df):
         
     # ======================  Normalization of maximum experience  ====================== 
     
-    column_max_exp = 'Maximum Experience (years)'  # Replace 'column_name' with the name of your column
+    column_max_exp = 'Maximum Experience (years)'
     data = df[[column_max_exp]]
     
     # Normalize
@@ -174,8 +181,50 @@ def normalize_experience(df):
         df["Normalized Maximum Experience"] = normalized_data
         
     return df
-    
-    
+
+def gender_one_hot_encoding(df):
+    """
+    Handling Categorical attributes
+    Performs One Hot encoding on the Gender Preference column
+    """
+    if 'Gender Preference' in df.columns and not all(pref in df.columns for pref in ['Male', 'Female', 'Both']):
+        # One hot encoding on Gender Preference
+        df_encoded = pd.get_dummies(df['Gender Preference'],dtype=np.uint8)
+
+        # Concatenates the encoded columns with the dataframe
+        df = pd.concat([df, df_encoded], axis=1)
+
+        # Testing (can remove later)
+        print("Checking if one hot encoding was done properly on Gender Preference column.")
+        print(df[['Gender Preference','Male', 'Female', 'Both']])
+
+        # Drop original column if it exists
+        if 'Gender Preference' in df.columns:
+            df.drop(columns=['Gender Preference'], inplace=True)
+    else:
+        print("One Hot Encoding already performed on Gender Preference column.")
+
+def work_type_one_hot_encoding(df):
+    """
+    Handling Categorical attributes
+    Performs One Hot encoding on the Work Type column
+    """
+    if 'Work Type' in df.columns and not all(pref in df.columns for pref in ['Contract', 'Full-Time', 'Intern','Part-Time','Temporary']):
+        # One hot encoding on Work Type
+        df_encoded = pd.get_dummies(df['Work Type'],dtype=np.uint8)
+
+        # Concatenates the encoded columns with the dataframe
+        df = pd.concat([df, df_encoded], axis=1)
+
+        # Testing (can remove later)
+        print("Checking if one hot encoding was done properly on Work Type column.")
+        print(df[['Work Type','Contract', 'Full-Time', 'Intern','Part-Time','Temporary']])
+
+        # Drop original column if it exists
+        if 'Work Type' in df.columns:
+            df.drop(columns=['Work Type'], inplace=True)
+    else:
+        print("One Hot Encoding already performed on Work Type column.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
