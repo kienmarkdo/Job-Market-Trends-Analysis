@@ -8,7 +8,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import argparse
 from sklearn.preprocessing import MinMaxScaler
-
+from sklearn.svm import OneClassSVM
+import time
 
 def summarize():
     """
@@ -78,25 +79,75 @@ def transform():
     # Load the dataset
     df = pd.read_csv("data_staging/Staged_data.csv")
 
-    # ======================  Normalization  ====================== 
+    print("===========================  NORMALIZATION  ===========================")
     
+    print("[+] Performing Normalization on Salary columns...")
     normalize_salary(df)
+    print("==> Normalization on Salary columns completed.\n")
+    print("[+] Performing Normalization on Experience columns...")
     normalize_experience(df)
-    
-    print()
+    print("==> Normalization on Experience columns completed.\n")
     
     # Drop the non normalized columns
+    print("[+] Dropping non-normalized columns and renaming...\n")
     df.drop(columns=['Minimum Salary', 'Maximum Salary', 'Minimum Experience (years)', 'Maximum Experience (years)'], inplace=True)
+    df.rename(columns={'Normalized Minimum Salary': 'Minimum Salary', 'Normalized Maximum Salary': 'Maximum Salary',
+    'Normalized Minimum Experience': 'Minimum Experience', 'Normalized Maximum Experience': 'Maximum Experience'}, inplace=True)
 
-    # ======================  One Hot Encoding  ======================
+    print("===========================  ONE HOT ENCODING  ===========================")
+    print("[+] Performing One Hot Encoding on Gender Preference column...")
+    df = gender_one_hot_encoding(df)
+    print("==> One Hot Encoding on Gender Preference completed.\n")
+    print("[+] Performing One Hot Encoding on Work Type column...")
+    df = work_type_one_hot_encoding(df)
+    print("==> One Hot Encoding on Work Type completed.\n")
 
-    gender_one_hot_encoding(df)
-    work_type_one_hot_encoding(df)
+    print("===========================  FEATURE SELECTION  ===========================")
+    print("[+] Eliminating irrelevant and redundant features...\n")
+    df.drop(columns=['Company Ticker', 'Responsibilities', 'Company Sector', 'Specialization'], inplace=True)
+
+    print("============================     OUTLIERS      ============================")
+    print("[+] Identifying the outliers...")
+    start_time = time.time() 
+    calculate_outliers(df, 'Minimum Salary')
+    calculate_outliers(df, 'Maximum Salary')
 
     # Save the transformed csv to a new file
     # df.to_csv('transformed_data.csv', index=False)
-    
-    
+
+def calculate_outliers(df, feature_name):
+    print(f"---[+] Identifying the outliers for {feature_name}...")
+    start_time = time.time()
+    X = df[[feature_name]]
+
+    # Initialize the One-Class SVM model
+    nu = 0.1  # Adjust the proportion of outliers to be expected in the data
+    model = OneClassSVM(kernel='rbf', nu=nu)
+
+    # Fit the model to the data
+    model.fit(X)
+
+    # Predict the labels (inliers: 1, outliers: -1)
+    y_pred = model.predict(X)
+
+    end_time = time.time()
+
+    # Calculate time taken in minutes and seconds 
+    time_taken = end_time - start_time
+    minutes = int(time_taken // 60)
+    seconds = int(time_taken % 60)
+
+    print(f"Time taken to calculate outliers for {feature_name}: {minutes} minutes and {seconds} seconds")
+
+    # Visualize the outliers using histogram
+    plt.figure(figsize=(8, 6))
+    plt.hist(X[feature_name], bins=50, color='#87CEEB', alpha=0.7, label='Data Distribution', density=True)
+    plt.hist(X[y_pred == -1][feature_name], bins=50, color='#FF0000', alpha=0.7, label='Outliers', density=True)
+    plt.xlabel(feature_name)
+    plt.ylabel('Density')
+    plt.title('Outlier Detection using One-Class SVM')
+    plt.legend()
+    plt.show()
     
 def normalize_salary(df):
     """
@@ -205,14 +256,18 @@ def gender_one_hot_encoding(df):
         df = pd.concat([df, df_encoded], axis=1)
 
         # Testing (can remove later)
-        print("Checking if one hot encoding was done properly on Gender Preference column.")
+        print("---[+] Checking if one hot encoding was done properly on Gender Preference column.")
         print(df[['Gender Preference','Male', 'Female', 'Both']])
 
         # Drop original column if it exists
         if 'Gender Preference' in df.columns:
+            print("---[+] Now dropping Gender Preference column...")
             df.drop(columns=['Gender Preference'], inplace=True)
+
+        return df
     else:
-        print("One Hot Encoding already performed on Gender Preference column.")
+        print("--- One Hot Encoding already performed on Gender Preference column.")
+        return df
 
 def work_type_one_hot_encoding(df):
     """
@@ -227,14 +282,18 @@ def work_type_one_hot_encoding(df):
         df = pd.concat([df, df_encoded], axis=1)
 
         # Testing (can remove later)
-        print("Checking if one hot encoding was done properly on Work Type column.")
+        print("---[+] Checking if one hot encoding was done properly on Work Type column.")
         print(df[['Work Type','Contract', 'Full-Time', 'Intern','Part-Time','Temporary']])
 
         # Drop original column if it exists
         if 'Work Type' in df.columns:
+            print("---[+] Now dropping Work Type column...")
             df.drop(columns=['Work Type'], inplace=True)
+
+        return df
     else:
-        print("One Hot Encoding already performed on Work Type column.")
+        print("--- One Hot Encoding already performed on Work Type column.")
+        return df
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
