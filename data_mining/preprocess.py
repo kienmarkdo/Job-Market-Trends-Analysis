@@ -103,8 +103,10 @@ def transform():
     print("==> One Hot Encoding on Work Type completed.\n")
 
     print("===========================  FEATURE SELECTION  ===========================")
-    print("[+] Eliminating irrelevant and redundant features...\n")
-    df.drop(columns=['Company Ticker', 'Responsibilities', 'Company Sector', 'Specialization'], inplace=True)
+    print("[+] Eliminating irrelevant and redundant features...")
+    attributes_to_drop = ['Company Ticker', 'Responsibilities', 'Company Sector', 'Specialization']
+    print(f"Dropping the following attributes: {attributes_to_drop}\n")
+    df.drop(columns=attributes_to_drop, inplace=True)
 
     print("============================     OUTLIERS      ============================")
     print("[+] Identifying the outliers...")
