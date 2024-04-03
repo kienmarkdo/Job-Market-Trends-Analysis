@@ -107,17 +107,35 @@ def transform():
     attributes_to_drop = ['Company Ticker', 'Responsibilities', 'Company Sector', 'Specialization']
     print(f"Dropping the following attributes: {attributes_to_drop}\n")
     df.drop(columns=attributes_to_drop, inplace=True)
-
+    
     print("============================     OUTLIERS      ============================")
     print("[+] Identifying the outliers...")
     start_time = time.time() 
-    calculate_outliers(df, 'Minimum Salary')
-    calculate_outliers(df, 'Maximum Salary')
+    
+    find_outliers(df, 'Minimum Salary')
+    # find_outliers(df, 'Maximum Salary')
+    # find_outliers(df, 'Minimum Experience')
+    # find_outliers(df, 'Maximum Experience')
 
     # Save the transformed csv to a new file
-    # df.to_csv('transformed_data.csv', index=False)
+    print("[+] Saving transformed data as a csv file...")
+    desired_order = ['Job Id','Minimum Experience',
+                 'Maximum Experience','Qualifications',
+                 'Minimum Salary', 'Maximum Salary', 'City', 'Country', 'Job City Population',
+                 'Contract', 'Full-Time', 'Intern','Part-Time','Temporary', 
+                 'Day', 'Month', 'Year', 'Quarter', 'Male', 'Female', 'Both', 'Job Title',
+                 'Job Portal', 'Skills', 'Company', 'Company Size',
+                 'Company Industry', 'Company HQ City', 'Company HQ Country',
+                 'Retirement Plans', 'Stock Options or Equity Grants', 'Parental Leave','Paid Time Off (PTO)',
+                 'Flexible Work Arrangements','Health Insurance', 'Life and Disability Insurance',
+                 'Employee Assistance Program','Health and Wellness Facilities','Employee Referral Program',
+                 'Transportation Benefits','Bonuses and Incentive Programs']
+    
+    df = df[desired_order]
+    
+    df.to_csv('data_mining/Transformed_data.csv', index=False)
 
-def calculate_outliers(df, feature_name):
+def find_outliers(df, feature_name):
     print(f"---[+] Identifying the outliers for {feature_name}...")
     start_time = time.time()
     X = df[[feature_name]]
